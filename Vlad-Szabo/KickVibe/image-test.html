@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Loading Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .image-card {
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .image-card img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+      background: #f0f0f0;
+    }
+    .image-card p {
+      margin: 10px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    h1 {
+      color: #333;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <h1>✓ Product Images Test Page</h1>
+  <p>This page tests if all product images are loadable and displays them directly.</p>
+  
+  <div id="status" class="status success">Loading images...</div>
+  
+  <div class="container" id="container"></div>
+
+  <script>
+    const images = [
+      { name: 'Running 1', path: './assets/images/run1.jpg' },
+      { name: 'Running 2', path: './assets/images/run2.jpg' },
+      { name: 'Basketball 1', path: './assets/images/basket1.jpg' },
+      { name: 'Basketball 2', path: './assets/images/basket2.jpg' },
+      { name: 'Casual 1', path: './assets/images/casual1.jpg' },
+      { name: 'Casual 2', path: './assets/images/casual2.jpg' },
+      { name: 'Running Category', path: './assets/images/running.jpg' },
+      { name: 'Basketball Category', path: './assets/images/basketball.jpg' },
+      { name: 'Casual Category', path: './assets/images/casual.jpg' }
+    ];
+
+    let loadedCount = 0;
+    let failedCount = 0;
+
+    const container = document.getElementById('container');
+    const status = document.getElementById('status');
+
+    images.forEach(img => {
+      const card = document.createElement('div');
+      card.className = 'image-card';
+      
+      const imgElement = document.createElement('img');
+      imgElement.src = img.path;
+      imgElement.alt = img.name;
+      imgElement.onload = () => {
+        loadedCount++;
+        updateStatus();
+      };
+      imgElement.onerror = () => {
+        failedCount++;
+        updateStatus();
+      };
+      
+      const nameElement = document.createElement('p');
+      nameElement.textContent = img.name + ' (' + img.path + ')';
+      
+      card.appendChild(imgElement);
+      card.appendChild(nameElement);
+      container.appendChild(card);
+    });
+
+    function updateStatus() {
+      if (loadedCount + failedCount === images.length) {
+        if (failedCount === 0) {
+          status.className = 'status success';
+          status.textContent = `✓ All ${loadedCount} images loaded successfully!`;
+        } else {
+          status.className = 'status error';
+          status.textContent = `✗ ${loadedCount} images loaded, ${failedCount} FAILED`;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

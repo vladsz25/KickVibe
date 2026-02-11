@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account - KickVibe</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    .profile-container {
+      padding: var(--spacing-2xl) var(--spacing-md);
+      background: linear-gradient(135deg, var(--light) 0%, var(--gray-50) 100%);
+      min-height: 100vh;
+    }
+
+    .profile-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: var(--white);
+      padding: var(--spacing-2xl);
+      border-radius: var(--radius-xl);
+      margin-bottom: var(--spacing-2xl);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .profile-header-info h1 {
+      font-size: 2rem;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .profile-header-info p {
+      opacity: 0.95;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--spacing-2xl);
+    }
+
+    .profile-sidebar {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-2xl);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      height: fit-content;
+    }
+
+    .profile-sidebar h3 {
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--gray-light);
+    }
+
+    .profile-sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .profile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      color: var(--dark);
+      text-decoration: none;
+      transition: all 300ms ease;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 1rem;
+      font-family: var(--font-family);
+      text-align: left;
+      width: 100%;
+    }
+
+    .profile-nav-link:hover {
+      background-color: var(--light);
+      color: var(--primary);
+    }
+
+    .profile-nav-link.active {
+      background-color: var(--primary);
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .profile-content {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-2xl);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .profile-section {
+      display: none;
+    }
+
+    .profile-section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--gray-light);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: var(--spacing-sm);
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: var(--spacing-md);
+      border: 2px solid var(--gray-light);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      transition: all 300ms ease;
+      font-family: var(--font-family);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+    }
+
+    /* Order History */
+    .order-card {
+      border: 1px solid var(--gray-light);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--spacing-lg);
+    }
+
+    .order-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .order-detail {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .order-detail-label {
+      font-size: 0.85rem;
+      color: var(--gray-medium);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .order-detail-value {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--dark);
+    }
+
+    .order-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      min-width: 120px;
+    }
+
+    .order-status.pending {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+
+    .order-status.processing {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+
+    .order-status.shipped {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    .order-status.delivered {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    /* Settings */
+    .settings-section {
+      padding: var(--spacing-lg) 0;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .settings-section:last-child {
+      border-bottom: none;
+    }
+
+    .settings-section h3 {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .danger-zone {
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      margin-top: var(--spacing-lg);
+    }
+
+    .danger-zone h3 {
+      color: var(--danger);
+    }
+
+    @media (max-width: 768px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-sidebar {
+        position: sticky;
+        top: 70px;
+        z-index: 10;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-lg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="notifications"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <nav class="navbar">
+        <a href="../index.html" class="logo">KickVibe</a>
+        <div class="nav-actions">
+          <button class="nav-icon" id="darkModeToggle">Dark</button>
+          <button class="nav-icon" id="wishlistBtn" title="Wishlist">❤️</button>
+          <button class="nav-icon" id="cartBtn" style="position: relative;">Cart<span class="cart-count" id="cartCount" style="display: none;">0</span></button>
+          <button class="btn btn-outline btn-small" id="logoutBtn">Logout</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Profile Container -->
+  <div class="profile-container">
+    <div class="container">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-header-info">
+          <h1 id="profileName">Welcome back!</h1>
+          <p id="profileEmail">user@example.com</p>
+        </div>
+        <div style="font-size: 2rem; font-weight: 700;">PROFILE</div>
+      </div>
+
+      <!-- Profile Grid -->
+      <div class="profile-grid">
+        
+        <!-- Sidebar -->
+        <div class="profile-sidebar">
+          <h3>Account Menu</h3>
+          <div class="profile-sidebar-nav">
+            <button class="profile-nav-link active" data-tab="profile">
+              Personal Info
+            </button>
+            <button class="profile-nav-link" data-tab="orders">
+              📦 Order History
+            </button>
+            <button class="profile-nav-link" data-tab="wishlist">
+              Wishlist
+            </button>
+            <button class="profile-nav-link" data-tab="settings">
+              ⚙️ Settings
+            </button>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div>
+          <!-- Personal Info Section -->
+          <div class="profile-section active" id="profile">
+            <h2 class="section-title">Personal Information</h2>
+            <form id="profileForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>First Name *</label>
+                  <input type="text" name="firstName" required>
+                </div>
+                <div class="form-group">
+                  <label>Last Name</label>
+                  <input type="text" name="lastName">
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Email Address *</label>
+                  <input type="email" name="email" readonly style="background-color: var(--light); cursor: not-allowed;">
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Phone Number</label>
+                  <input type="tel" name="phone" placeholder="(555) 123-4567">
+                </div>
+              </div>
+
+              <h3 style="margin: var(--spacing-2xl) 0 var(--spacing-lg); color: var(--dark);">Delivery Address</h3>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Street Address</label>
+                  <input type="text" name="address" placeholder="123 Main St">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>City</label>
+                  <input type="text" name="city">
+                </div>
+                <div class="form-group">
+                  <label>State</label>
+                  <input type="text" name="state" placeholder="CA">
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>ZIP Code</label>
+                  <input type="text" name="zipCode">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+          </div>
+
+          <!-- Order History Section -->
+          <div class="profile-section" id="orders">
+            <h2 class="section-title">Order History</h2>
+            <div id="ordersList">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Wishlist Section -->
+          <div class="profile-section" id="wishlist">
+            <h2 class="section-title">My Wishlist</h2>
+            <div id="wishlistList">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Settings Section -->
+          <div class="profile-section" id="settings">
+            <h2 class="section-title">Account Settings</h2>
+
+            <div class="settings-section">
+              <h3>Change Password</h3>
+              <p style="color: var(--gray-medium); margin-bottom: var(--spacing-md);">Update your password to keep your account secure.</p>
+              <button class="btn btn-outline" onclick="showNotification('Password reset feature coming soon', 'info');">
+                Change Password
+              </button>
+            </div>
+
+            <div class="settings-section">
+              <h3>Email Notifications</h3>
+              <label style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                <input type="checkbox" id="emailNotif" checked>
+                Receive order updates and tracking information
+              </label>
+              <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                <input type="checkbox" id="promotionNotif" checked>
+                Receive exclusive offers and promotions
+              </label>
+            </div>
+
+            <div class="settings-section">
+              <h3>Two-Factor Authentication</h3>
+              <p style="color: var(--gray-medium); margin-bottom: var(--spacing-md);">Add an extra layer of security to your account.</p>
+              <button class="btn btn-outline" onclick="showNotification('2FA coming soon', 'info');">
+                Enable 2FA
+              </button>
+            </div>
+
+            <div class="danger-zone">
+              <h3>Delete Account</h3>
+              <p style="color: var(--danger); margin-bottom: var(--spacing-md); font-size: 0.9rem;">
+                This action is permanent and cannot be undone. All your data will be deleted.
+              </p>
+              <button class="btn btn-outline" style="color: var(--danger); border-color: var(--danger);" onclick="deleteAccount();">
+                Delete My Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2024 KickVibe. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/state.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    // Check authentication
+    if (!isLoggedIn()) {
+      window.location.href = './login.html';
+    }
+
+    // Dark mode toggle
+    if (stateManager.isDarkMode()) {
+      document.body.classList.add('dark-mode');
+    }
+
+    document.getElementById('darkModeToggle').addEventListener('click', () => {
+      stateManager.toggleDarkMode();
+      document.body.classList.toggle('dark-mode');
+    });
+
+    // Navigation
+    document.getElementById('cartBtn').addEventListener('click', () => {
+      window.location.href = './cart.html';
+    });
+
+    document.getElementById('wishlistBtn').addEventListener('click', () => {
+      window.location.href = './wishlist.html';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      stateManager.logout();
+      window.location.href = '../index.html';
+    });
+
+    // Tab switching
+    document.querySelectorAll('.profile-nav-link').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabName = btn.dataset.tab;
+        
+        document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.profile-nav-link').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tabName).classList.add('active');
+        btn.classList.add('active');
+      });
+    });
+
+    // Load user data
+    function loadUserData() {
+      const user = stateManager.getUser();
+      const authUser = authManager.getUserById(user.id);
+
+      document.getElementById('profileName').textContent = `Welcome, ${user.firstName}!`;
+      document.getElementById('profileEmail').textContent = user.email;
+
+      document.querySelector('[name="firstName"]').value = authUser.firstName || '';
+      document.querySelector('[name="lastName"]').value = authUser.lastName || '';
+      document.querySelector('[name="email"]').value = authUser.email || '';
+      document.querySelector('[name="phone"]').value = authUser.phone || '';
+      document.querySelector('[name="address"]').value = authUser.address || '';
+      document.querySelector('[name="city"]').value = authUser.city || '';
+      document.querySelector('[name="zipCode"]').value = authUser.zipCode || '';
+    }
+
+    // Profile form submission
+    document.getElementById('profileForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const user = stateManager.getUser();
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        authManager.updateProfile(user.id, {
+          firstName: formData.get('firstName'),
+          lastName: formData.get('lastName'),
+          phone: formData.get('phone'),
+          address: formData.get('address'),
+          city: formData.get('city'),
+          zipCode: formData.get('zipCode')
+        });
+
+        stateManager.updateUser({
+          firstName: formData.get('firstName'),
+          lastName: formData.get('lastName')
+        });
+
+        showNotification('Profile updated successfully!', 'success');
+      } catch (error) {
+        showNotification(error.message, 'error');
+      }
+    });
+
+    // Render order history
+    function renderOrders() {
+      const orders = stateManager.getUserOrders();
+      const container = document.getElementById('ordersList');
+
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: var(--spacing-2xl);">
+            <p style="font-size: 2rem; margin-bottom: var(--spacing-md);">📦</p>
+            <p style="color: var(--gray-medium);">You haven't placed any orders yet.</p>
+            <a href="./shop.html" class="btn btn-primary" style="margin-top: var(--spacing-lg);">Start Shopping</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = orders.map(order => `
+        <div class="order-card">
+          <div class="order-info">
+            <div class="order-detail">
+              <span class="order-detail-label">Order #</span>
+              <span class="order-detail-value">#${order.id.toString().padStart(6, '0')}</span>
+            </div>
+            <div class="order-detail">
+              <span class="order-detail-label">Date</span>
+              <span class="order-detail-value">${formatDate(order.date)}</span>
+            </div>
+            <div class="order-detail">
+              <span class="order-detail-label">Items</span>
+              <span class="order-detail-value">${order.items.length} item(s)</span>
+            </div>
+            <div class="order-detail">
+              <span class="order-detail-label">Total</span>
+              <span class="order-detail-value" style="color: var(--primary);">${formatPrice(order.total)}</span>
+            </div>
+          </div>
+          <div class="order-status ${order.status}">
+            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render wishlist
+    function renderWishlist() {
+      const wishlist = stateManager.getWishlist();
+      const container = document.getElementById('wishlistList');
+
+      if (wishlist.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: var(--spacing-2xl);">
+            <p style="font-size: 2rem; margin-bottom: var(--spacing-md);"></p>
+            <p style="color: var(--gray-medium);">Your wishlist is empty.</p>
+            <a href="./shop.html" class="btn btn-primary" style="margin-top: var(--spacing-lg);">Browse Sneakers</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="grid grid-3">
+          ${wishlist.map(item => `
+            <div class="product-card">
+              <div class="product-image"></div>
+              <div class="product-info">
+                <div class="product-name">${item.name}</div>
+                <div class="product-price">${formatPrice(item.price)}</div>
+                <button class="btn btn-primary btn-small" style="width: 100%; margin-top: var(--spacing-sm);" onclick="window.location.href='./product.html?id=${item.id}'">
+                  View
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Delete account
+    function deleteAccount() {
+      if (confirm('Are you absolutely sure? This action cannot be undone!')) {
+        if (confirm('This will delete all your data. Type DELETE to confirm.')) {
+          stateManager.logout();
+          showNotification('Account deleted.', 'success');
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 1500);
+        }
+      }
+    }
+
+    // Initialize
+    window.addEventListener('load', () => {
+      loadUserData();
+      renderOrders();
+      renderWishlist();
+
+      // Update cart count
+      const count = stateManager.getCart().length;
+      const cartCount = document.getElementById('cartCount');
+      if (count > 0) {
+        cartCount.textContent = count;
+        cartCount.style.display = 'flex';
+      }
+    });
+  </script>
+</body>
+</html>
