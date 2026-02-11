@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - KickVibe</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    .checkout-container {
+      padding: var(--spacing-2xl) var(--spacing-md);
+      background: linear-gradient(135deg, var(--light) 0%, var(--gray-50) 100%);
+      min-height: 100vh;
+    }
+
+    .checkout-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .checkout-header {
+      margin-bottom: var(--spacing-3xl);
+    }
+
+    .checkout-header h1 {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    /* Progress Stepper */
+    .progress-stepper {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-3xl);
+      position: relative;
+    }
+
+    .progress-stepper::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gray-light);
+      z-index: 0;
+    }
+
+    .progress-step {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .step-number {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 3px solid var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--gray-medium);
+      margin-bottom: var(--spacing-md);
+      transition: all 300ms ease;
+    }
+
+    .progress-step.active .step-number {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--white);
+    }
+
+    .progress-step.completed .step-number {
+      background: var(--success);
+      border-color: var(--success);
+      color: var(--white);
+    }
+
+    .step-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--gray-medium);
+      white-space: nowrap;
+    }
+
+    .progress-step.active .step-label {
+      color: var(--primary);
+    }
+
+    .progress-step.completed .step-label {
+      color: var(--success);
+    }
+
+    /* Checkout Grid */
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: var(--spacing-2xl);
+    }
+
+    .checkout-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-2xl);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .checkout-card h3 {
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--gray-light);
+      font-size: 1.2rem;
+    }
+
+    /* Form Styling */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: var(--spacing-sm);
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: var(--spacing-md);
+      border: 2px solid var(--gray-light);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      transition: all 300ms ease;
+      font-family: var(--font-family);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+    }
+
+    .form-group.has-error input {
+      border-color: var(--danger);
+      background-color: rgba(239, 68, 68, 0.05);
+    }
+
+    .form-error {
+      display: none;
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: var(--spacing-xs);
+    }
+
+    .form-group.has-error .form-error {
+      display: block;
+    }
+
+    /* Order Summary */
+    .order-summary {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-2xl);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 100px;
+    }
+
+    .order-summary h3 {
+      margin-bottom: var(--spacing-lg);
+      font-size: 1.2rem;
+    }
+
+    .order-items {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .order-item {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .order-item-image {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-md);
+      background: var(--light);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .order-item-info {
+      flex: 1;
+    }
+
+    .order-item-name {
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .order-item-details {
+      font-size: 0.85rem;
+      color: var(--gray-medium);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .order-item-price {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Summary Breakdown */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-md) 0;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .summary-row.total {
+      padding: var(--spacing-lg) 0;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary);
+      border-bottom: none;
+    }
+
+    .summary-label {
+      color: var(--gray-600);
+    }
+
+    .summary-value {
+      font-weight: 600;
+    }
+
+    /* Payment Methods */
+    .payment-methods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .payment-method {
+      padding: var(--spacing-md);
+      border: 2px solid var(--gray-light);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 300ms ease;
+      text-align: center;
+    }
+
+    .payment-method:hover {
+      border-color: var(--primary);
+      background: var(--light);
+    }
+
+    .payment-method input {
+      cursor: pointer;
+    }
+
+    .payment-method.active {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.05), rgba(0, 78, 137, 0.05));
+    }
+
+    /* Buttons */
+    .checkout-buttons {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-2xl);
+    }
+
+    .checkout-buttons .btn {
+      flex: 1;
+      height: 48px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* Security Badge */
+    .security-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md);
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: var(--radius-md);
+      color: var(--success);
+      font-weight: 500;
+      margin-top: var(--spacing-lg);
+    }
+
+    @media (max-width: 768px) {
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .order-summary {
+        position: static;
+      }
+
+      .progress-stepper {
+        margin-bottom: var(--spacing-2xl);
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .payment-methods {
+        grid-template-columns: 1fr;
+      }
+
+      .checkout-buttons {
+        flex-direction: column;
+      }
+
+      .checkout-buttons .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="notifications"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <nav class="navbar">
+        <a href="../index.html" class="logo">KickVibe</a>
+        <div class="nav-actions">
+          <a href="./cart.html" class="btn btn-outline btn-small">Back to Cart</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Checkout Container -->
+  <div class="checkout-container">
+    <div class="checkout-wrapper">
+      <div class="checkout-header">
+        <h1>Secure Checkout</h1>
+      </div>
+
+      <!-- Progress Stepper -->
+      <div class="progress-stepper">
+        <div class="progress-step completed">
+          <div class="step-number">1</div>
+          <div class="step-label">Cart</div>
+        </div>
+        <div class="progress-step active">
+          <div class="step-number">2</div>
+          <div class="step-label">Shipping &<br>Payment</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-number">3</div>
+          <div class="step-label">Confirmation</div>
+        </div>
+      </div>
+
+      <!-- Checkout Grid -->
+      <div class="checkout-grid">
+        
+        <!-- Main Checkout Form -->
+        <div>
+          <form id="checkoutForm">
+            <!-- Shipping Address -->
+            <div class="checkout-card">
+              <h3>Shipping Address</h3>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>First Name *</label>
+                  <input type="text" name="firstName" required>
+                  <div class="form-error"></div>
+                </div>
+                <div class="form-group">
+                  <label>Last Name *</label>
+                  <input type="text" name="lastName" required>
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Email Address *</label>
+                  <input type="email" name="email" required>
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Phone Number *</label>
+                  <input type="tel" name="phone" required placeholder="(555) 123-4567">
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Street Address *</label>
+                  <input type="text" name="address" required placeholder="123 Main St">
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>City *</label>
+                  <input type="text" name="city" required>
+                  <div class="form-error"></div>
+                </div>
+                <div class="form-group">
+                  <label>State *</label>
+                  <input type="text" name="state" required placeholder="CA">
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>ZIP Code *</label>
+                  <input type="text" name="zipCode" required>
+                  <div class="form-error"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shipping Method -->
+            <div class="checkout-card">
+              <h3>Shipping Method</h3>
+
+              <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                <label style="padding: var(--spacing-md); border: 2px solid var(--primary); border-radius: var(--radius-md); background: linear-gradient(135deg, rgba(255, 107, 53, 0.05), rgba(0, 78, 137, 0.05)); cursor: pointer; display: flex; align-items: center;">
+                  <input type="radio" name="shippingMethod" value="standard" checked style="width: auto; margin-right: var(--spacing-md);">
+                  <div>
+                    <div style="font-weight: 600;">Standard Shipping</div>
+                    <div style="font-size: 0.85rem; color: var(--gray-medium);">5-7 business days · FREE on orders over $100</div>
+                  </div>
+                </label>
+
+                <label style="padding: var(--spacing-md); border: 2px solid var(--gray-light); border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center;">
+                  <input type="radio" name="shippingMethod" value="express" style="width: auto; margin-right: var(--spacing-md);">
+                  <div>
+                    <div style="font-weight: 600;">Express Shipping</div>
+                    <div style="font-size: 0.85rem; color: var(--gray-medium);">2-3 business days · $24.99</div>
+                  </div>
+                </label>
+
+                <label style="padding: var(--spacing-md); border: 2px solid var(--gray-light); border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center;">
+                  <input type="radio" name="shippingMethod" value="overnight" style="width: auto; margin-right: var(--spacing-md);">
+                  <div>
+                    <div style="font-weight: 600;">Overnight Shipping</div>
+                    <div style="font-size: 0.85rem; color: var(--gray-medium);">Next business day · $49.99</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="checkout-card">
+              <h3>Payment Information</h3>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Cardholder Name *</label>
+                  <input type="text" name="cardholderName" required>
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Card Number *</label>
+                  <input type="text" name="cardNumber" required placeholder="1234 5678 9012 3456" maxlength="19" id="cardNumber">
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Expiry Date *</label>
+                  <input type="text" name="expiryDate" required placeholder="MM/YY" maxlength="5">
+                  <div class="form-error"></div>
+                </div>
+                <div class="form-group">
+                  <label>CVV *</label>
+                  <input type="text" name="cvv" required placeholder="123" maxlength="4">
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div style="background: rgba(16, 185, 129, 0.1); padding: var(--spacing-md); border-radius: var(--radius-md); font-size: 0.9rem; color: var(--success); margin-top: var(--spacing-lg);">
+                <strong>Demo Mode:</strong> Use any valid card format. No real charges will be made.
+              </div>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="checkout-card">
+              <div style="display: flex; align-items: flex-start; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                <input type="checkbox" id="termsCheckbox" name="terms" required style="width: auto; margin-top: 4px;">
+                <label for="termsCheckbox" style="margin-bottom: 0; font-size: 0.95rem;">
+                  I agree to KickVibe's <strong>Terms & Conditions</strong> and <strong>Privacy Policy</strong>
+                </label>
+              </div>
+
+              <div style="display: flex; align-items: flex-start; gap: var(--spacing-sm);">
+                <input type="checkbox" id="newsletterCheckbox" name="newsletter" style="width: auto; margin-top: 4px;">
+                <label for="newsletterCheckbox" style="margin-bottom: 0; font-size: 0.95rem;">
+                  Send me exclusive offers and sneaker updates
+                </label>
+              </div>
+            </div>
+
+            <!-- Checkout Buttons -->
+            <div class="checkout-buttons">
+              <a href="./cart.html" class="btn btn-outline">Back to Cart</a>
+              <button type="submit" class="btn btn-primary">Complete Order</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="order-summary">
+          <h3>Order Summary</h3>
+
+          <div class="order-items" id="orderItems">
+            <!-- Populated by JavaScript -->
+          </div>
+
+          <div>
+            <div class="summary-row">
+              <span class="summary-label">Subtotal</span>
+              <span class="summary-value" id="subtotal">$0.00</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Shipping</span>
+              <span class="summary-value" id="shipping">$0.00</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Tax (10%)</span>
+              <span class="summary-value" id="tax">$0.00</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total</span>
+              <span id="total">$0.00</span>
+            </div>
+          </div>
+
+          <button class="btn btn-outline" style="width: 100%; margin-top: var(--spacing-lg);" onclick="window.location.href='./cart.html'">
+            Edit Cart
+          </button>
+
+          <div class="security-badge">
+            Secure SSL Connection
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2024 KickVibe. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/state.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    // Check authentication
+    if (!isLoggedIn()) {
+      window.location.href = './login.html';
+    }
+
+    /**
+     * Form Error Handling
+     */
+    function showFormError(fieldName, message) {
+      const input = document.querySelector(`[name="${fieldName}"]`);
+      if (!input) return;
+
+      const formGroup = input.closest('.form-group');
+      formGroup.classList.add('has-error');
+      
+      const errorDiv = formGroup.querySelector('.form-error');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+      }
+    }
+
+    function clearFormErrors() {
+      document.querySelectorAll('.form-group').forEach(group => {
+        group.classList.remove('has-error');
+        const errorDiv = group.querySelector('.form-error');
+        if (errorDiv) {
+          errorDiv.textContent = '';
+        }
+      });
+    }
+
+    /**
+     * Validation Functions
+     */
+    function validatePhone(phone) {
+      return /^[0-9\s\-\+\(\)]{10,}$/.test(phone.replace(/\D/g, ''));
+    }
+
+    function validateCardNumber(number) {
+      return /^\d{16}$/.test(number.replace(/\s/g, ''));
+    }
+
+    function validateExpiry(expiry) {
+      return /^\d{2}\/\d{2}$/.test(expiry);
+    }
+
+    function validateCVV(cvv) {
+      return /^\d{3,4}$/.test(cvv);
+    }
+
+    /**
+     * Format Card Number with Spaces
+     */
+    document.getElementById('cardNumber').addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\s/g, '');
+      let formattedValue = value.replace(/(\d{4})/g, '$1 ').trim();
+      e.target.value = formattedValue;
+    });
+
+    /**
+     * Calculate Shipping Cost
+     */
+    function calculateShippingCost() {
+      const subtotal = stateManager.getCartTotal();
+      const shippingMethod = document.querySelector('[name="shippingMethod"]:checked').value;
+
+      switch (shippingMethod) {
+        case 'express':
+          return 24.99;
+        case 'overnight':
+          return 49.99;
+        case 'standard':
+        default:
+          return subtotal >= 100 ? 0 : 9.99;
+      }
+    }
+
+    /**
+     * Handle Shipping Method Change
+     */
+    document.querySelectorAll('[name="shippingMethod"]').forEach(radio => {
+      radio.addEventListener('change', updateOrderSummary);
+    });
+
+    /**
+     * Form Submission
+     */
+    document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      clearFormErrors();
+      let hasErrors = false;
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      // Validation
+      if (!formData.get('firstName').trim()) {
+        showFormError('firstName', 'First name is required');
+        hasErrors = true;
+      }
+
+      if (!formData.get('lastName').trim()) {
+        showFormError('lastName', 'Last name is required');
+        hasErrors = true;
+      }
+
+      if (!validatePhone(formData.get('phone'))) {
+        showFormError('phone', 'Please enter a valid phone number');
+        hasErrors = true;
+      }
+
+      if (!validateCardNumber(formData.get('cardNumber'))) {
+        showFormError('cardNumber', 'Card number must be 16 digits');
+        hasErrors = true;
+      }
+
+      if (!validateExpiry(formData.get('expiryDate'))) {
+        showFormError('expiryDate', 'Use format MM/YY');
+        hasErrors = true;
+      }
+
+      if (!validateCVV(formData.get('cvv'))) {
+        showFormError('cvv', 'CVV must be 3-4 digits');
+        hasErrors = true;
+      }
+
+      if (!document.getElementById('termsCheckbox').checked) {
+        showNotification('Please agree to terms and conditions', 'error');
+        hasErrors = true;
+      }
+
+      if (hasErrors) return;
+
+      // Create order
+      try {
+        const user = stateManager.getUser();
+        const order = stateManager.createOrder({
+          userId: user.id,
+          shippingInfo: {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            address: formData.get('address'),
+            city: formData.get('city'),
+            state: formData.get('state'),
+            zipCode: formData.get('zipCode')
+          },
+          shippingMethod: formData.get('shippingMethod'),
+          paymentInfo: {
+            cardNumber: formData.get('cardNumber').slice(-4),
+            cardholderName: formData.get('cardholderName')
+          }
+        });
+
+        showNotification('Order placed successfully!', 'success');
+        
+        setTimeout(() => {
+          window.location.href = `./order-confirmation.html?id=${order.id}`;
+        }, 1500);
+      } catch (error) {
+        showNotification(error.message, 'error');
+      }
+    });
+
+    /**
+     * Render Order Summary
+     */
+    function updateOrderSummary() {
+      const cart = stateManager.getCart();
+      const subtotal = stateManager.getCartTotal();
+      const shipping = calculateShippingCost();
+      const tax = subtotal * 0.1;
+      const total = subtotal + shipping + tax;
+
+      // Update items
+      document.getElementById('orderItems').innerHTML = cart.map(item => `
+        <div class="order-item">
+          <div class="order-item-image"></div>
+          <div class="order-item-info">
+            <div class="order-item-name">${item.name}</div>
+            <div class="order-item-details">Size: ${item.size} | Qty: ${item.quantity}</div>
+            <div class="order-item-price">${formatPrice(item.price * item.quantity)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Update totals
+      document.getElementById('subtotal').textContent = formatPrice(subtotal);
+      document.getElementById('shipping').textContent = formatPrice(shipping);
+      document.getElementById('tax').textContent = formatPrice(tax);
+      document.getElementById('total').textContent = formatPrice(total);
+    }
+
+    /**
+     * Initialize
+     */
+    function initialize() {
+      const user = stateManager.getUser();
+      if (user) {
+        document.querySelector('[name="firstName"]').value = user.firstName || '';
+        document.querySelector('[name="lastName"]').value = user.lastName || '';
+        document.querySelector('[name="email"]').value = user.email || '';
+      }
+
+      updateOrderSummary();
+    }
+
+    window.addEventListener('load', initialize);
+  </script>
+</body>
+</html>

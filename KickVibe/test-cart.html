@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart Testing - KickVibe</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .log {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 3px;
+    }
+    .log-error {
+      color: red;
+    }
+    .log-success {
+      color: green;
+    }
+    .log-info {
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 KickVibe Cart Testing Suite</h1>
+  
+  <div class="test-container">
+    <h2>1. State Manager Initialization</h2>
+    <button onclick="testStateInit()">Test State Init</button>
+    <button onclick="testLocalStorage()">Check LocalStorage</button>
+    <div class="log" id="log-init"></div>
+  </div>
+
+  <div class="test-container">
+    <h2>2. Add Product to Cart</h2>
+    <button onclick="testAddToCart()">Add Product 1</button>
+    <button onclick="testAddMultiple()">Add Multiple Products</button>
+    <button onclick="checkCartState()">Check Cart State</button>
+    <div class="log" id="log-cart"></div>
+  </div>
+
+  <div class="test-container">
+    <h2>3. Cart Operations</h2>
+    <button onclick="testUpdateQuantity()">Update Quantity</button>
+    <button onclick="testRemoveFromCart()">Remove From Cart</button>
+    <button onclick="testGetCartTotal()">Get Cart Total</button>
+    <div class="log" id="log-operations"></div>
+  </div>
+
+  <div class="test-container">
+    <h2>4. Navigation Test</h2>
+    <button onclick="testNavigateToCart()">Go to Cart Page</button>
+    <button onclick="testNavigateToProduct()">Go to Product Page</button>
+    <div class="log" id="log-nav"></div>
+  </div>
+
+  <div class="test-container">
+    <h2>5. Debugging Info</h2>
+    <button onclick="dumpAllData()">Dump All Data</button>
+    <button onclick="clearAllData()">Clear All Data</button>
+    <div class="log" id="log-debug"></div>
+  </div>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/auth.js"></script>
+  
+  <script>
+    function log(elementId, message, type = 'info') {
+      const logEl = document.getElementById(elementId);
+      const entry = document.createElement('div');
+      entry.className = `log-entry log-${type}`;
+      const timestamp = new Date().toLocaleTimeString();
+      entry.textContent = `[${timestamp}] ${message}`;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function testStateInit() {
+      const logId = 'log-init';
+      try {
+        log(logId, `StateManager exists: ${typeof stateManager !== 'undefined'}`, 'info');
+        log(logId, `Cart items: ${stateManager.getCart().length}`, 'info');
+        log(logId, `Products loaded: ${stateManager.getProducts().length}`, 'info');
+        log(logId, `State initialization successful!`, 'success');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function testLocalStorage() {
+      const logId = 'log-init';
+      try {
+        const cart = localStorage.getItem('kickvibe_cart');
+        const products = localStorage.getItem('kickvibe_products');
+        const user = localStorage.getItem('kickvibe_user');
+        
+        log(logId, `Cart in localStorage: ${cart ? 'YES (' + JSON.parse(cart).length + ' items)' : 'NO'}`, cart ? 'success' : 'info');
+        log(logId, `Products in localStorage: ${products ? 'YES' : 'NO'}`, 'info');
+        log(logId, `User in localStorage: ${user ? 'YES' : 'NO'}`, 'info');
+        
+        if (cart) {
+          log(logId, `Cart data: ${cart.substring(0, 100)}...`, 'info');
+        }
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function testAddToCart() {
+      const logId = 'log-cart';
+      try {
+        const product = stateManager.getProductById(1);
+        if (!product) {
+          log(logId, `Product 1 not found!`, 'error');
+          return;
+        }
+        log(logId, `Found product: ${product.name}`, 'info');
+        
+        const cartBefore = stateManager.getCart().length;
+        stateManager.addToCart(product, '10', 1);
+        const cartAfter = stateManager.getCart().length;
+        
+        log(logId, `Cart before: ${cartBefore} items`, 'info');
+        log(logId, `Cart after: ${cartAfter} items`, 'success');
+        log(logId, `Product added: ${product.name}`, 'success');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function testAddMultiple() {
+      const logId = 'log-cart';
+      try {
+        const cartBefore = stateManager.getCart().length;
+        
+        stateManager.addToCart(stateManager.getProductById(1), '10', 1);
+        stateManager.addToCart(stateManager.getProductById(2), '11', 2);
+        stateManager.addToCart(stateManager.getProductById(3), '9', 1);
+        
+        const cartAfter = stateManager.getCart().length;
+        log(logId, `Added 3 products. Cart: ${cartBefore} → ${cartAfter} items`, 'success');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function checkCartState() {
+      const logId = 'log-cart';
+      try {
+        const cart = stateManager.getCart();
+        log(logId, `=== CART STATE ===`, 'info');
+        log(logId, `Total items in cart: ${cart.length}`, 'info');
+        
+        cart.forEach((item, i) => {
+          log(logId, `  [${i}] ${item.name} - Size: ${item.size}, Qty: ${item.quantity}, Price: $${item.price}`, 'info');
+        });
+        
+        log(logId, `Cart Total: $${stateManager.getCartTotal()}`, 'success');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function testUpdateQuantity() {
+      const logId = 'log-operations';
+      try {
+        const cart = stateManager.getCart();
+        if (cart.length === 0) {
+          log(logId, `Cart is empty. Add items first!`, 'error');
+          return;
+        }
+        
+        const item = cart[0];
+        const oldQty = item.quantity;
+        const newQty = 5;
+        
+        stateManager.updateCartQuantity(item.cartItemId, newQty);
+        log(logId, `Updated quantity: ${oldQty} → ${newQty}`, 'success');
+        log(logId, `New total: $${stateManager.getCartTotal()}`, 'info');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function testRemoveFromCart() {
+      const logId = 'log-operations';
+      try {
+        const cart = stateManager.getCart();
+        if (cart.length === 0) {
+          log(logId, `Cart is empty!`, 'error');
+          return;
+        }
+        
+        const item = cart[cart.length - 1];
+        const cartBefore = stateManager.getCart().length;
+        
+        stateManager.removeFromCart(item.cartItemId);
+        const cartAfter = stateManager.getCart().length;
+        
+        log(logId, `Removed ${item.name}`, 'success');
+        log(logId, `Cart: ${cartBefore} → ${cartAfter} items`, 'info');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function testGetCartTotal() {
+      const logId = 'log-operations';
+      try {
+        const total = stateManager.getCartTotal();
+        const cart = stateManager.getCart();
+        log(logId, `Items in cart: ${cart.length}`, 'info');
+        log(logId, `Total: $${total.toFixed(2)}`, 'success');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function testNavigateToCart() {
+      const logId = 'log-nav';
+      try {
+        log(logId, `Navigating to cart page...`, 'info');
+        setTimeout(() => {
+          window.location.href = './pages/cart.html';
+        }, 1000);
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function testNavigateToProduct() {
+      const logId = 'log-nav';
+      try {
+        log(logId, `Navigating to product page (ID: 1)...`, 'info');
+        setTimeout(() => {
+          window.location.href = './pages/product.html?id=1';
+        }, 1000);
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function dumpAllData() {
+      const logId = 'log-debug';
+      try {
+        log(logId, `=== COMPLETE STATE DUMP ===`, 'info');
+        
+        const cartData = localStorage.getItem('kickvibe_cart');
+        const userData = localStorage.getItem('kickvibe_user');
+        const wishlistData = localStorage.getItem('kickvibe_wishlist');
+        
+        log(logId, `Cart (localStorage): ${cartData ? cartData.substring(0, 150) : 'empty'}`, 'info');
+        log(logId, `User (localStorage): ${userData ? 'logged in' : 'not logged in'}`, 'info');
+        log(logId, `Wishlist (localStorage): ${wishlistData ? JSON.parse(wishlistData).length + ' items' : 'empty'}`, 'info');
+        
+        log(logId, `Current Cart State: ${JSON.stringify(stateManager.getCart())}`, 'info');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    function clearAllData() {
+      const logId = 'log-debug';
+      try {
+        localStorage.clear();
+        location.reload();
+        log(logId, `All data cleared and page reloaded!`, 'success');
+      } catch (e) {
+        log(logId, `Error: ${e.message}`, 'error');
+      }
+    }
+
+    // Auto-test on load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        testStateInit();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

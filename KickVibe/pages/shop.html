@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop - KickVibe</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    .sidebar {
+      position: sticky;
+      top: 120px;
+      height: fit-content;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-xl);
+    }
+
+    .sidebar.card {
+      padding: var(--spacing-lg);
+    }
+
+    .filter-section {
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .filter-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .filter-section h4 {
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--dark);
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+      cursor: pointer;
+      gap: var(--spacing-md);
+    }
+
+    .filter-option input {
+      width: auto;
+      min-width: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .filter-option label {
+      margin-bottom: 0;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--gray-600);
+      user-select: none;
+    }
+
+    .filter-option:hover label {
+      color: var(--dark);
+    }
+
+    .price-range-input {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+    }
+
+    .price-range-input input {
+      width: 100%;
+    }
+
+    .sort-select {
+      width: 100%;
+    }
+
+    .filter-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      background-color: var(--gray-100);
+      border-radius: var(--radius-full);
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+    }
+
+    .filter-chip button {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-xl);
+      flex-wrap: wrap;
+      gap: var(--spacing-lg);
+    }
+
+    .results-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .results-count {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: var(--font-size-lg);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: static;
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .shop-layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      .filter-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-lg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="notifications"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <nav class="navbar">
+        <a href="../index.html" class="logo">KickVibe</a>
+        
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="./shop.html" class="active">Shop</a></li>
+          <li><a href="./contact.html">Contact</a></li>
+          <li id="adminLink" style="display: none;"><a href="./admin.html">Admin</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <button class="nav-icon" id="darkModeToggle" title="Dark Mode">Dark</button>
+          <button class="nav-icon" id="searchToggle" title="Search">Search</button>
+          <button class="nav-icon" id="wishlistBtn" title="Wishlist">❤️</button>
+          <button class="nav-icon" id="cartBtn" style="position: relative;" title="Cart">Cart<span class="cart-count" id="cartCount" style="display: none;">0</span></button>
+          <button class="nav-icon" id="userBtn" title="Account">Account</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: var(--spacing-2xl) var(--spacing-md); text-align: center;">
+    <div class="container">
+      <h1 style="color: white; font-size: clamp(2rem, 5vw, 3rem); margin-bottom: var(--spacing-md); font-weight: 800;">Shop Our Collection</h1>
+      <p style="font-size: 1.1rem; opacity: 0.95; max-width: 600px; margin: 0 auto;">Discover premium sneakers from top brands. Find your perfect pair today.</p>
+    </div>
+  </section>
+
+  <!-- Shop Container -->
+  <div style="min-height: 80vh; padding: var(--spacing-2xl) var(--spacing-md);">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: 280px 1fr; gap: var(--spacing-2xl); margin-bottom: var(--spacing-xl);" class="shop-layout">
+        
+        <!-- Sidebar Filters -->
+        <aside class="sidebar card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-lg);">
+            <h3 style="margin: 0; font-weight: 800; font-size: 1.1rem;">Filters</h3>
+            <button class="btn btn-ghost btn-small" id="resetFiltersBtn" style="padding: 0; font-weight: 700;">Reset</button>
+          </div>
+
+          <!-- Search -->
+          <div class="filter-section">
+            <input type="text" id="searchInput" placeholder="Search by name..." style="margin-bottom: 0;">
+          </div>
+
+          <!-- Category Filter -->
+          <div class="filter-section">
+            <h4>Category</h4>
+            <div class="filter-option">
+              <input type="radio" name="category" id="cat-all" value="all" checked>
+              <label for="cat-all">All Categories</label>
+            </div>
+            <div class="filter-option">
+              <input type="radio" name="category" id="cat-running" value="running">
+              <label for="cat-running">Running</label>
+            </div>
+            <div class="filter-option">
+              <input type="radio" name="category" id="cat-basketball" value="basketball">
+              <label for="cat-basketball">Basketball</label>
+            </div>
+            <div class="filter-option">
+              <input type="radio" name="category" id="cat-casual" value="casual">
+              <label for="cat-casual">Casual</label>
+            </div>
+          </div>
+
+          <!-- Price Filter -->
+          <div class="filter-section">
+            <h4>Price Range</h4>
+            <div class="price-range-input">
+              <input type="number" id="priceMin" placeholder="Min" min="0" value="0">
+              <input type="number" id="priceMax" placeholder="Max" value="500">
+            </div>
+            <button class="btn btn-primary" id="applyPriceBtn" style="width: 100%; margin-top: var(--spacing-md); font-weight: 800;">Apply</button>
+          </div>
+
+          <!-- Sort -->
+          <div class="filter-section">
+            <h4>Sort By</h4>
+            <select id="sortSelect" class="sort-select">
+              <option value="newest">Newest First</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="rating">Highest Rated</option>
+            </select>
+          </div>
+        </aside>
+
+        <!-- Products Grid -->
+        <main>
+          <!-- Active Filters -->
+          <div class="active-filters" id="activeFilters" style="display: none; margin-bottom: var(--spacing-lg);">
+            <!-- Populated by JavaScript -->
+          </div>
+
+          <!-- Results Header -->
+          <div class="results-header">
+            <div class="results-info">
+              <span class="results-count" id="resultsCount">0 results</span>
+            </div>
+            <div id="loadingSpinner" style="display: none;" class="spinner"></div>
+          </div>
+
+          <!-- Products Grid -->
+          <div class="grid grid-3" id="productsGrid">
+            <!-- Populated by JavaScript -->
+          </div>
+
+          <!-- No Results -->
+          <div id="noResults" style="display: none; text-align: center; padding: var(--spacing-3xl) var(--spacing-md);">
+            <div style="font-size: 1.5rem; margin-bottom: var(--spacing-lg); font-weight: 700; color: var(--gray-500);">No Results</div>
+            <h2 style="color: var(--gray-600); margin-bottom: var(--spacing-md);">No sneakers found</h2>
+            <p style="color: var(--gray-500); font-size: 1.05rem; margin-bottom: var(--spacing-lg);">Try adjusting your filters or search term</p>
+            <button class="btn btn-primary" onclick="document.getElementById('resetFiltersBtn').click()">Clear Filters</button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h4>About KickVibe</h4>
+          <p style="color: var(--gray-300); font-size: 0.9rem;">Premium sneakers and exclusive streetwear for sneaker enthusiasts worldwide.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="./shop.html">Shop</a></li>
+            <li><a href="./contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Customer Service</h4>
+          <ul>
+            <li><a href="./shop.html">Shipping Info</a></li>
+            <li><a href="./shop.html">Returns</a></li>
+            <li><a href="./shop.html">Size Guide</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 KickVibe. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/state.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="./shop.js"></script>
+</body>
+</html>
